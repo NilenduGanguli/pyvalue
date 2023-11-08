@@ -1,17 +1,35 @@
 import subprocess
 import linecache
 from collections import defaultdict
+import os
 
-def analyze_code(module_path):
-    process = subprocess.Popen(["pylint", module_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    stdout, stderr = process.communicate()
-    pylint_output = stdout.decode()
-    code_stats ={'total_lines': 0, 'unused_variable': [],'unused_import': [], 'unused_argument': []}
+class analyze_code :
+    def __init__(self,module_path) :
+        process = subprocess.Popen(["pylint", module_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stdout, stderr = process.communicate()
+        self.pylint_output = stdout.decode()
+        module_split=self.pylint_output.split("************* Module ")
+        if os.name=="nt":
+            module_name=module_path.split("\\")[-1]
+        else :
+            module_name=module_path.split("/")[-1]
+        self.module_output=dict()
+        for item in module_split:
+            if len(item)>len(module_name):
+                print(item.splitlines()[0])
+    
+    def check_duplicates(self):
+        print(self.pylint_output)
+       
+
+def get_stats(self,module_path):
+    code_stats ={'total_lines': 0, 'unused_variable': [],'unused_import': [], 'unused_argument': [], 'pylint_output' : ""}
     with open(module_path, 'r') as file:
         lines = file.readlines()
     total_lines = len(lines)
     code_stats['total_lines'] = total_lines
-    lines = pylint_output.splitlines()
+    lines = self.pylint_output.splitlines()
+    # code_stats['pylint_output']=lines
     for i, line in enumerate(lines):
         if "W" in line and "Unused" in line:
             parts = line.split(": ")[-1].split(" ")
