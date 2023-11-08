@@ -2,15 +2,16 @@ import subprocess
 import linecache
 from collections import defaultdict
 import os
-import json
+from analyze_duplicates import analyze_duplicates
 
 class analyze_code :
     def __init__(self,project_path,local_modules) :
         self.module_output=dict()
         self.local_modules=local_modules
         self.project_name=os.path.basename(project_path)
+        self.project_path=project_path
 
-        process = subprocess.Popen(["pylint","--output-format=text","--ignore-imports=yes", os.path.join(project_path,"*")], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        process = subprocess.Popen(["pylint","--output-format=text","--ignore-imports=yes", os.path.join(self.project_path,"*")], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = process.communicate()
         pylint_output = stdout.decode()
         module_split=pylint_output.split("************* Module ")
@@ -19,10 +20,8 @@ class analyze_code :
             if len(item)>len(self.project_name):
                 pylint_module_content=item.splitlines()
                 module_name=pylint_module_content[0]
-                print(module_name)
                 if module_name in local_modules or module_name==self.project_name:
                     self.module_output[module_name]=pylint_module_content[1:]
-        print(json.dumps(self.module_output,indent=4))
         
             
     def duplicates_rating(self):
@@ -34,13 +33,24 @@ class analyze_code :
             if item.startswith("Your code has been rated at"):
                 rating=item.split(" ")[6]
             if skip_next:
-                skip_next = False  # Reset the flag
+                skip_next = False
                 continue
             if item.startswith("=="):
                 skip_next = True
-                duplicates.append((item[2:],module_duplicate_section[line_num+1][2:]))
+                duplicates.append([item[2:],module_duplicate_section[line_num+1][2:]])
+        duplicate_details=list()
+        for item in duplicates:
+            directory=os.path.abspath(self.project_path+"/..")
+            if os.name=="nt":
+                file1=item[0].split(":")[0].replace(".","\\")+".py"
+                file2=item[1].split(":")[0].replace(".","\\")+".py"
+            else :
+                file1=item[0].split(":")[0].replace(".","/")+".py"
+                file2=item[1].split(":")[0].replace(".","/")+".py"
+            duplicate_details.append([item[0],item[1],analyze_duplicates(directory,file1,file2)])
+
             
-        return len(duplicates),duplicates,rating
+        return len(duplicates),duplicate_details,rating
        
 
     def get_stats(self,module_name,module_path):
@@ -51,6 +61,7 @@ class analyze_code :
         code_stats['total_lines'] = total_lines
         if module_name in self.module_output.keys():
             lines = self.module_output[module_name]
+            code_stats['pylint_output']="\n".join(self.module_output[module_name])
         else :
             return code_stats
         for i, line in enumerate(lines):

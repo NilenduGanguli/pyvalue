@@ -38,7 +38,7 @@ def analyze_project(project_path):
                             "analyze_code_info":None,
                             "analyze_dependencies_info":None,
                             "module_path":abs_module_path}
-        # return_data[module_name]["analyze_method_info"]=analyze_method(abs_module_path)
+        return_data[module_name]["analyze_method_info"]=analyze_method(abs_module_path)
         return_data[module_name]["analyze_code_info"]=code_analyzer.get_stats(module_name,abs_module_path)
         return_data_overview["total_lines"]+=return_data[module_name]["analyze_code_info"]['total_lines']
         return_data[module_name]["analyze_dependencies_info"]=analyze_dependencies(abs_module_path)
@@ -62,6 +62,7 @@ def analyze_project(project_path):
     plt.title("Simple Directed Graph")
     plt.axis("off")
     plt.savefig(graph_file_name, format="PNG")
+    print(json.dumps(return_data_overview,indent=4))
     return_data[project_name+"_overview"]=return_data_overview
     pretty_json=json.dumps(return_data,indent=4)
     with open(json_file_name, 'w') as file:
