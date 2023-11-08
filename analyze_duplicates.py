@@ -2,8 +2,6 @@ import difflib
 import os
 
 def find_code_duplicates(directory,code_file1,code_file2):
-    duplicates = []
-
     
     file1_path = os.path.join(directory, code_file1)
     file2_path = os.path.join(directory, code_file2)

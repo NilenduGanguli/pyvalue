@@ -39,5 +39,3 @@ class TestCodeAnalysis(unittest.TestCase):
             result = analyze_code('test.py')
             self.assertEqual(result['unused_argument'], ['some_function=>unused_arg'])
 
-if __name__ == '__main__':
-    unittest.main()
