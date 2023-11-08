@@ -4,13 +4,11 @@ def analyze_method(module_path: str) -> dict:
     methods_info = []
     with open(module_path, 'r') as file:
         source_code = file.read()
-
     try:
         parsed = ast.parse(source_code)
     except SyntaxError as e:
         print(f"SyntaxError in {module_path}: {e}")
         return methods_info
-
     for node in ast.walk(parsed):
         if isinstance(node, ast.FunctionDef):
             method_name = node.name
@@ -25,7 +23,6 @@ def analyze_method(module_path: str) -> dict:
                     except TypeError :
                         print(f"Incoplete method or missing code in : {node.name}")
             return_type = ast.dump(node.returns) if node.returns else None
-
             methods_info.append({
                 "name": method_name,
                 "docstring": docstring,
@@ -35,6 +32,3 @@ def analyze_method(module_path: str) -> dict:
                 "return_type": return_type
             })
     return methods_info
-
-# if __name__ == '__main__':
-#     print(analyze_method("test.py"))

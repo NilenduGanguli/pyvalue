@@ -13,6 +13,3 @@ def analyze_dependencies(module_path):
                 if alias.name != "*":
                     dependencies.add(node.module + "." + alias.name)
     return list(dependencies)
-
-# if __name__=='__main__':
-#     print(analyze_dependencies("test.py"))

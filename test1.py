@@ -1,10 +1,7 @@
 import os
 def analyze_project(project_path):
     module_dependency_graph = nx.DiGraph()
-    if os.name=='nt':
-        project_file_name=project_path+"\\"+project_path.split("\\")[-1]
-    else :
-        project_file_name=project_path+"/"+project_path.split("/")[-1]
+    project_file_name=project_path+"\\"+project_path.split("\\")[-1]
     graph_file_name=project_file_name+".png"
     json_file_name=project_file_name+".json"
     code_analyzer=""

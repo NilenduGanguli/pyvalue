@@ -10,19 +10,16 @@ class analyze_code :
         self.local_modules=local_modules
         self.project_name=os.path.basename(project_path)
         self.project_path=project_path
-
         process = subprocess.Popen(["pylint","--output-format=text","--ignore-imports=yes", os.path.join(self.project_path,"*")], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = process.communicate()
         pylint_output = stdout.decode()
-        module_split=pylint_output.split("************* Module ")
-        
+        module_split=pylint_output.split("************* Module ")        
         for item in module_split:
             if len(item)>len(self.project_name):
                 pylint_module_content=item.splitlines()
                 module_name=pylint_module_content[0]
                 if module_name in local_modules or module_name==self.project_name:
-                    self.module_output[module_name]=pylint_module_content[1:]
-        
+                    self.module_output[module_name]=pylint_module_content[1:]     
             
     def duplicates_rating(self):
         duplicates=list()
@@ -40,18 +37,11 @@ class analyze_code :
                 duplicates.append([item[2:],module_duplicate_section[line_num+1][2:]])
         duplicate_details=list()
         for item in duplicates:
-            directory=os.path.abspath(self.project_path+"/..")
-            if os.name=="nt":
-                file1=item[0].split(":")[0].replace(".","\\")+".py"
-                file2=item[1].split(":")[0].replace(".","\\")+".py"
-            else :
-                file1=item[0].split(":")[0].replace(".","/")+".py"
-                file2=item[1].split(":")[0].replace(".","/")+".py"
+            directory=os.path.abspath(self.project_path+os.path.sep+"..")
+            file1=item[0].split(":")[0].replace(".",os.path.sep)+".py"
+            file2=item[1].split(":")[0].replace(".",os.path.sep)+".py"
             duplicate_details.append([item[0],item[1],analyze_duplicates(directory,file1,file2)])
-
-            
-        return len(duplicates),duplicate_details,rating
-       
+        return len(duplicates),duplicate_details,rating    
 
     def get_stats(self,module_name,module_path):
         code_stats ={'total_lines': 0, 'unused_variable': [],'unused_import': [], 'unused_argument': [], 'pylint_output' : ""}
@@ -86,8 +76,4 @@ class analyze_code :
                     name = parts[-2]
                 if f'unused_{unused_type}' in code_stats:
                     code_stats[f'unused_{unused_type}'].append(name)
-
         return code_stats
-
-# if __name__=='__main__':
-#     print(analyze_code("test.py"))

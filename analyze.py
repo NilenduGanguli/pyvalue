@@ -5,13 +5,9 @@ from analyze_method import analyze_method
 from analyze_code import analyze_code
 from analyze_dependencies import analyze_dependencies
 import matplotlib.pyplot as plt
-from temp.test import analyse_project
-
 
 def analyze_project(project_path):
-
     module_dependency_graph = nx.DiGraph()
-
     print("Running Analysis for : " + project_path)
     project_name=os.path.basename(project_path)
     graph_file_name=os.path.join(project_path,project_name+".png")
@@ -47,17 +43,12 @@ def analyze_project(project_path):
         imported_modules_excluding_methods=list()
         for item in imported_modules:
             imported_modules_excluding_methods.append( project_name+"."+".".join(item.split(".")[:-1]) if len(item.split("."))>1 else item )
-        # print(imported_modules_excluding_methods)
-        # print(local_modules)
         for imported_module in imported_modules_excluding_methods:
             if imported_module in local_modules :
-                module_dependency_graph.add_edge(module_name, imported_module)
-            
+                module_dependency_graph.add_edge(module_name, imported_module)         
     pos = nx.spring_layout(module_dependency_graph, seed=42,k=0.7 )
     plt.figure(figsize=(30, 24))
-    edge_colors = [
-        'red', 'blue', 'green', 'orange', 'purple', 'pink', 'brown', 'gray', 'cyan', 'magenta'
-    ]
+    edge_colors = ['red', 'blue', 'green', 'orange', 'purple', 'pink', 'brown', 'gray', 'cyan', 'magenta']
     nx.draw(module_dependency_graph, pos, with_labels=True, node_size=500*len(local_modules), node_color="skyblue", edge_color=edge_colors, font_size=10, font_color="black", arrowsize=40,  node_shape='o')
     plt.title("Simple Directed Graph")
     plt.axis("off")
@@ -67,12 +58,10 @@ def analyze_project(project_path):
     pretty_json=json.dumps(return_data,indent=4)
     with open(json_file_name, 'w') as file:
         file.write(pretty_json)
-    
     print("Please view the following files : ")
     print(graph_file_name)
     print(json_file_name)
-    
-
+    return (graph_file_name,json_file_name)
 if __name__ == '__main__':
     project_path = input("Please Specify Project Directory : (Relative/Absolute Path) ")
     analyze_project(os.path.abspath(project_path))
